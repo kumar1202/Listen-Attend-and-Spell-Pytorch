@@ -96,6 +96,7 @@ If you have any questions, please contact b03902034[AT]ntu.edu.tw
 
 - Experiment on WSJ dataset
 - Attention Visualize
+- (Ongoing) We just replaced CrossEntropyLoss with NLLLoss. The experiments will be rerun and updated soon.
 
 ## References
 - Special thanks to [William Chan](http://williamchan.ca/), the first author of LAS, for answering my questions during implementation.

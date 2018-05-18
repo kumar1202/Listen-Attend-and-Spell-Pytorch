@@ -64,7 +64,7 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
     current_batch_size = len(batch_data)
     batch_data = Variable(batch_data).type(torch.FloatTensor)
     batch_label = Variable(batch_label, requires_grad=False)
-    objective = nn.CrossEntropyLoss(ignore_index=0)
+    objective = nn.NLLLoss(ignore_index=0)
     if use_gpu:
         batch_data = batch_data.cuda()
         batch_label = batch_label.cuda()
