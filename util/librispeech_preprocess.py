@@ -121,10 +121,10 @@ file_list = [file_list[idx] for idx in reversed(np.argsort(audio_len))]
 text_list = [text_list[idx] for idx in reversed(np.argsort(audio_len))]
 
 
-if char_map:
+if char_map_path:
     # Load char mapping
     char_map = {}
-    with open(char_map,'r') as f:
+    with open(char_map_path,'r') as f:
         for line in f:
             if 'idx,char' in line:
                 continue
