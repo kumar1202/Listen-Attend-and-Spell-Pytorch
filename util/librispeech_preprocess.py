@@ -48,7 +48,8 @@ def flac2wav(f_path):
 
 
     
-print('Processing flac2wav...',end='',flush=True)
+print('Processing flac2wav...',flush=True)
+print(flush=True)
 
 
 file_list = []
@@ -77,7 +78,8 @@ def wav2logfbank(f_path):
     fbank_feat = logfbank(sig,rate,winlen=win_size,nfilt=n_filters)
     np.save(f_path[:-3]+'fb'+str(n_filters),fbank_feat)
 
-print('Processing wav2logfbank...',end='',flush=True)
+print('Processing wav2logfbank...',flush=True)
+print(flush=True)
 
 results = Parallel(n_jobs=n_jobs,backend="threading")(delayed(wav2logfbank)(i[:-4]+'wav') for i in tqdm(file_list))
                     
@@ -86,7 +88,7 @@ print('done')
 
 # # log-mel fbank 2 feature
 
-
+print('Preparing dataset...',flush=True)
 
 file_list = []
 text_list = []
@@ -168,14 +170,18 @@ del tmp_list
 
 
 # write dataset
+
+
 if 'train' in libri_path[0]:
     file_name = 'train.csv'
 elif 'test' in libri_path[0]:
     file_name = 'test.csv'
 elif 'dev' in libri_path[0]:
     file_name = 'dev.csv'
-    
-with open(root+'train.csv','w') as f:
+
+print('Writing dataset to'+root+file_name+'...',flush=True)
+
+with open(root+file_name,'w') as f:
     f.write('idx,input,label\n')
     for i in range(len(file_list)):
         f.write(str(i)+',')
@@ -183,4 +189,4 @@ with open(root+'train.csv','w') as f:
         for char in text_list[i]:
             f.write(' '+str(char))
         f.write('\n')
-
+print('done')
