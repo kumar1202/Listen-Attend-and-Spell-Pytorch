@@ -58,6 +58,26 @@ If you have any questions, please contact b03902034[AT]ntu.edu.tw
 
     A Python package for extracting MFCC features during preprocessing
 
+##### Packages for LibriSpeech preprocessing
+
+
+- [pydub](https://github.com/jiaaro/pydub)
+
+    High level api for audio file format tranlation
+
+- [python_speech_features](https://github.com/jameslyons/python_speech_features)
+
+    A Python package for extracting MFCC features during preprocessing
+
+- joblib
+    
+    Parallel tool to speed up feature extraction.
+
+- tdqm
+
+    Progress bar for visualization.
+
+
 ##### Packages for running LAS model
 
 - [PyTorch](http://pytorch.org/) (0.3.0 or later version)
@@ -69,15 +89,37 @@ If you have any questions, please contact b03902034[AT]ntu.edu.tw
 
     Package for calculating edit distance (Levenshtein distance).
 
+- [tensorboardX](https://github.com/lanpa/tensorboard-pytorch)
+
+    Tensorboard interface for pytorch, we used it to visualize training process.
+
+- [pandas](https://pandas.pydata.org/)
+
+    For LibriSpeech dataset loading.
+
 
 ## Setup
 - TIMIT Dataset Preprocess
 
     Please prepare TIMIT dataset without modifying the file structure of it and run the following command to preprocess it from wave to MFCC 39 before training.
 
+        cd util
         ./timit_preprocess.sh <TIMIT folder>       
 
-    After preprocessing step, `timit_mfcc_39.pkl` should be under your TIMIT folder. Add your data path to config file.
+    After preprocessing step, `timit_mfcc_39.pkl` should be in your TIMIT folder. Add your data path to config file.
+
+- LibriSpeech Dataset Preprocess
+
+    Download [LibriSpeech](http://www.openslr.org/12/) and extract it. Run the following command to process from wave to log-mel filter bank feature. 
+
+        cd util
+        ./librispeech_preprocess.sh <LibriSpeech folder> 
+
+    Note that the script is an example using clean dataset only. For more arguments and instruction preprocessing LibriSpeech, please run
+
+        python3 util/librispeech_preprocess.py -h
+
+    After preprocessing step, `train.csv`/`test.csv`/`dev.csv`/`idx2chap.csv` should be in your LibriSpeech folder. Extracted feature is stored in npy format.
 
 - LAS Model
   ​      
