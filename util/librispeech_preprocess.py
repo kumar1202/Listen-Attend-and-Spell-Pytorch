@@ -13,7 +13,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Librispeech preprocess.')
 
 parser.add_argument('root', metavar='root', type=str,
-                     help='file path to LibriSpeech. (e.g. /usr/downloads/LibriSpeech/)')
+                     help='Absolute file path to LibriSpeech. (e.g. /usr/downloads/LibriSpeech/)')
 
 parser.add_argument('sets', metavar='sets', type=str, nargs='+',
                      help='Datasets to process in LibriSpeech. (e.g. train-clean-100/)')
@@ -179,7 +179,7 @@ elif 'test' in libri_path[0]:
 elif 'dev' in libri_path[0]:
     file_name = 'dev.csv'
 
-print('Writing dataset to'+root+file_name+'...',flush=True)
+print('Writing dataset to '+root+file_name+'...',flush=True)
 
 with open(root+file_name,'w') as f:
     f.write('idx,input,label\n')

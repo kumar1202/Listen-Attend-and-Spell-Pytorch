@@ -12,7 +12,7 @@ def load_dataset(data_path):
     data_table = pd.read_csv(data_path,index_col=0)
     for i in range(len(data_table)):
         X.append(np.load(data_table.loc[i]['input']))
-        Y.append([int(v) for v in data_table.loc[0]['label'].split(' ')[1:]])
+        Y.append([int(v) for v in data_table.loc[i]['label'].split(' ')[1:]])
     return X,Y
 
 # Input x: list of np array with shape (timestep,feature)
@@ -36,6 +36,8 @@ def OneHotEncode(Y,max_len,max_idx=30):
         for label in label_seq:
             new_y[idx,cnt,label] = 1.0
             cnt += 1
+            if cnt == max_len-1:
+                break
         new_y[idx,cnt,1] = 1.0 # <eos>
     return new_y
 

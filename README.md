@@ -113,7 +113,7 @@ If you have any questions, please contact b03902034[AT]ntu.edu.tw
     Download [LibriSpeech](http://www.openslr.org/12/) and extract it. Run the following command to process from wave to log-mel filter bank feature. 
 
         cd util
-        ./librispeech_preprocess.sh <LibriSpeech folder> 
+        ./librispeech_preprocess.sh <Absolute path to LibriSpeech folder> 
 
     Note that the script is an example using clean dataset only. For more arguments and instruction preprocessing LibriSpeech, please run
 

@@ -36,11 +36,10 @@ def TimeDistributed(input_module, input_x):
 
 # LetterErrorRate function
 # Merge the repeated prediction and calculate editdistance of prediction and ground truth
-def LetterErrorRate(pred_y,true_y):
+def LetterErrorRate(pred_y,true_y,data):
     ed_accumalate = []
     for p,t in zip(pred_y,true_y):
         compressed_t = [w for w in t if (w!=1 and w!=0)]
-        compressed_t = collapse_phn(compressed_t)
         compressed_p = []
         for p_w in p:
             if p_w == 0:
@@ -48,11 +47,13 @@ def LetterErrorRate(pred_y,true_y):
             if p_w == 1:
                 break
             compressed_p.append(p_w)
-        compressed_p = collapse_phn(compressed_p)
+        if data == 'timit':
+            compressed_t = collapse_phn(compressed_t)
+            compressed_p = collapse_phn(compressed_p)
         ed_accumalate.append(ed.eval(compressed_p,compressed_t)/len(compressed_t))
     return ed_accumalate
 
-def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rate, is_training, **kwargs):
+def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rate, is_training, data='timit',**kwargs):
     bucketing = kwargs['bucketing']
     use_gpu = kwargs['use_gpu']
     max_label_len = kwargs['max_label_len']
@@ -89,7 +90,7 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
     batch_loss = loss.cpu().data.numpy()
     # variable -> numpy before sending into LER calculator
     batch_ler = LetterErrorRate(torch.max(pred_y,dim=1)[1].cpu().data.numpy().reshape(current_batch_size,max_label_len),
-                                true_y.cpu().data.numpy().reshape(current_batch_size,max_label_len))
+                                true_y.cpu().data.numpy().reshape(current_batch_size,max_label_len), data)
     return batch_loss, batch_ler
 
 def log_parser(log_file_path):
