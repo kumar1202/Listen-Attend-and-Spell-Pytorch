@@ -83,7 +83,7 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
 
     pred_y = torch.cat([torch.unsqueeze(each_y,1) for each_y in raw_pred_seq],1)[:,:max_label_len,:]
     pred_y = pred_y.contiguous().view(-1,output_class_dim)
-    true_y = torch.max(batch_label,dim=2)[1].view(-1)
+    true_y = torch.max(batch_label,dim=2)[1][:,:max_label_len].view(-1)
 
     loss = objective(pred_y,true_y)
 
