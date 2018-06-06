@@ -67,10 +67,10 @@ class LibrispeechDataset(Dataset):
         return len(self.X)
 
 
-def create_dataloader(data_path, max_label_len, batch_size, shuffle, bucketing, **kwargs):
+def create_dataloader(data_path, max_label_len, batch_size, shuffle, bucketing, drop_last, **kwargs):
     if not bucketing:
         return DataLoader(LibrispeechDataset(data_path, batch_size,max_label_len,bucketing), 
-                          batch_size=batch_size,shuffle=shuffle)
+                          batch_size=batch_size,shuffle=shuffle,drop_last=drop_last)
     else:
         return DataLoader(LibrispeechDataset(data_path, batch_size,max_label_len,bucketing), 
-                          batch_size=1,shuffle=shuffle)
+                          batch_size=1,shuffle=shuffle,drop_last=drop_last)
