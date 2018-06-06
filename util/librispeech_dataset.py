@@ -56,8 +56,9 @@ class LibrispeechDataset(Dataset):
                 right = (b+1)*batch_size if (b+1)*batch_size<len(X) else len(X)
                 pad_len = len(X[left]) if (len(X[left]) % 8) == 0 else\
                           len(X[left])+(8-len(X[left])%8)
+                onehot_len = max([len(y) for y in Y[left:right]])+1
                 bucket_x.append(ZeroPadding(X[left:right], pad_len))
-                bucket_y.append(OneHotEncode(Y[left:right], max_label_len))
+                bucket_y.append(OneHotEncode(Y[left:right], onehot_len))
             self.X = bucket_x
             self.Y = bucket_y
     def __getitem__(self, index):

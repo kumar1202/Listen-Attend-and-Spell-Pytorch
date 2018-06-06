@@ -40,6 +40,7 @@ def LetterErrorRate(pred_y,true_y,data):
     ed_accumalate = []
     for p,t in zip(pred_y,true_y):
         compressed_t = [w for w in t if (w!=1 and w!=0)]
+        
         compressed_p = []
         for p_w in p:
             if p_w == 0:
@@ -56,13 +57,15 @@ def LetterErrorRate(pred_y,true_y,data):
 def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rate, is_training, data='timit',**kwargs):
     bucketing = kwargs['bucketing']
     use_gpu = kwargs['use_gpu']
-    max_label_len = kwargs['max_label_len']
     output_class_dim = kwargs['output_class_dim']
+
     # Load data
     if bucketing:
         batch_data = batch_data.squeeze(dim=0)
         batch_label = batch_label.squeeze(dim=0)
     current_batch_size = len(batch_data)
+    max_label_len = batch_label.size()[1]
+
     batch_data = Variable(batch_data).type(torch.FloatTensor)
     batch_label = Variable(batch_label, requires_grad=False)
     objective = nn.NLLLoss(ignore_index=0)
@@ -78,7 +81,7 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
     else:
         raw_pred_seq, attention_record = speller(listner_feature,ground_truth=None,teacher_force_rate=0)
 
-    pred_y = torch.cat([torch.unsqueeze(each_y,1) for each_y in raw_pred_seq],1).view(-1,output_class_dim)
+    pred_y = torch.cat([torch.unsqueeze(each_y,1) for each_y in raw_pred_seq],1)[:,:max_label_len,:].view(-1,output_class_dim)
     true_y = torch.max(batch_label,dim=2)[1].view(-1)
 
     loss = objective(pred_y,true_y)
@@ -91,6 +94,8 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
     # variable -> numpy before sending into LER calculator
     batch_ler = LetterErrorRate(torch.max(pred_y,dim=1)[1].cpu().data.numpy().reshape(current_batch_size,max_label_len),
                                 true_y.cpu().data.numpy().reshape(current_batch_size,max_label_len), data)
+
+
     return batch_loss, batch_ler
 
 def log_parser(log_file_path):

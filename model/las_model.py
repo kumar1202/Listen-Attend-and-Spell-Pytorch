@@ -96,7 +96,13 @@ class Speller(nn.Module):
         raw_pred_seq = []
         output_seq = []
         attention_record = []
-        for step in range(self.max_label_len):
+
+        if (ground is None) or (not teacher_force):
+            max_step = self.max_label_len
+        else:
+            max_step = ground_truth.size()[1]
+
+        for step in range(max_step):
             raw_pred, hidden_state, context, attention_score = self.forward_step(rnn_input, hidden_state, listener_feature)
             raw_pred_seq.append(raw_pred)
             attention_record.append(attention_score)
@@ -125,7 +131,8 @@ class Speller(nn.Module):
 # Output: Attention score                    with shape [batch size, T (attention score of each time step)]
 #         Context vector                     with shape [batch size,  listener feature dimension]
 #         (i.e. weighted (by attention score) sum of all timesteps T's feature)
-class Attention(nn.Module):
+class Attention(nn.Module):  
+
     def __init__(self, mlp_preprocess_input, preprocess_mlp_dim, activate, mode='dot', input_feature_dim=512):
         super(Attention,self).__init__()
         self.mode = mode.lower()
