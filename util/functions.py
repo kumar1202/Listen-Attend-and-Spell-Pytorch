@@ -64,7 +64,7 @@ def batch_iterator(batch_data, batch_label, listener, speller, optimizer, tf_rat
         batch_data = batch_data.squeeze(dim=0)
         batch_label = batch_label.squeeze(dim=0)
     current_batch_size = len(batch_data)
-    max_label_len = batch_label.size()[1]
+    max_label_len = min([batch_label.size()[1],kwargs['max_label_len']])
 
     batch_data = Variable(batch_data).type(torch.FloatTensor)
     batch_label = Variable(batch_label, requires_grad=False)

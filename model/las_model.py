@@ -111,12 +111,12 @@ class Speller(nn.Module):
                 output_word = ground_truth[:,step:step+1,:].type(self.float_type)
             else:
                 # Case 1. raw output as input
-                # output_word = raw_pred.unsqueeze(1)
+                output_word = raw_pred.unsqueeze(1)
                 # Case 2. One-hot form of raw output as input
-                output_word = torch.zeros_like(raw_pred)
-                for idx,i in enumerate(raw_pred.topk(1)[1]):
-                    output_word[idx,int(i)] = 1
-                output_word = output_word.unsqueeze(1)
+                #output_word = torch.zeros_like(raw_pred)
+                #for idx,i in enumerate(raw_pred.topk(1)[1]):
+                #    output_word[idx,int(i)] = 1
+                #output_word = output_word.unsqueeze(1)
                 
             rnn_input = torch.cat([output_word,context.unsqueeze(1)],dim=-1)
 
