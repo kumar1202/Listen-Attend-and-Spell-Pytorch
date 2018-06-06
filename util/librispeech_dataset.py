@@ -42,7 +42,7 @@ def OneHotEncode(Y,max_len,max_idx=30):
     return new_y
 
 class LibrispeechDataset(Dataset):
-    def __init__(self, data_path, batch_size, max_label_len,bucketing):
+    def __init__(self, data_path, batch_size, max_label_len,bucketing,drop_last=False):
         X,Y = load_dataset(data_path)
         if not bucketing:
             max_timestep = max([len(x) for x in X])
@@ -53,7 +53,13 @@ class LibrispeechDataset(Dataset):
             bucket_y = []
             for b in range(int(np.ceil(len(X)/batch_size))):
                 left = b*batch_size
-                right = (b+1)*batch_size if (b+1)*batch_size<len(X) else len(X)
+                if (b+1)*batch_size<len(X):
+                    right = (b+1)*batch_size
+                else:
+                    if drop_last:
+                        break
+                    else:
+                        right = len(X)
                 pad_len = len(X[left]) if (len(X[left]) % 8) == 0 else\
                           len(X[left])+(8-len(X[left])%8)
                 onehot_len = max([len(y) for y in Y[left:right]])+1
@@ -72,5 +78,5 @@ def create_dataloader(data_path, max_label_len, batch_size, shuffle, bucketing, 
         return DataLoader(LibrispeechDataset(data_path, batch_size,max_label_len,bucketing), 
                           batch_size=batch_size,shuffle=shuffle,drop_last=drop_last)
     else:
-        return DataLoader(LibrispeechDataset(data_path, batch_size,max_label_len,bucketing), 
-                          batch_size=1,shuffle=shuffle,drop_last=drop_last)
+        return DataLoader(LibrispeechDataset(data_path, batch_size,max_label_len,bucketing,drop_last=drop_last), 
+                          batch_size=1,shuffle=shuffle)
