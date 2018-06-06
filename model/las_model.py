@@ -97,7 +97,7 @@ class Speller(nn.Module):
         output_seq = []
         attention_record = []
 
-        if (ground is None) or (not teacher_force):
+        if (ground_truth is None) or (not teacher_force):
             max_step = self.max_label_len
         else:
             max_step = ground_truth.size()[1]
