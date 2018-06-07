@@ -22,8 +22,8 @@ parser.add_argument('--n_jobs', dest='n_jobs', action='store', default=-2 ,
                    help='number of cpu availible for preprocessing.\n -1: use all cpu, -2: use all cpu but one')
 parser.add_argument('--n_filters', dest='n_filters', action='store', default=40 ,
                    help='number of filters for fbank. (Default : 40)')
-parser.add_argument('--win_size', dest='win_size', action='store', default=0.01 ,
-                   help='window size during feature extraction (Default : 0.01 [10ms])')
+parser.add_argument('--win_size', dest='win_size', action='store', default=0.025 ,
+                   help='window size during feature extraction (Default : 0.025 [25ms])')
 parser.add_argument('--char_map', dest='char_map', action='store', default=None ,
                    help='Character2Index mapping file, generated during training data preprocessing. Specify this argument when processing dev/test data.')
 
