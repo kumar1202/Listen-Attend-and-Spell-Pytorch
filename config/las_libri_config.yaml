@@ -21,10 +21,11 @@ model_parameter:
 training_parameter:
   learning_rate: 0.0001
   seed: 1                  
-  total_steps: 2000000
+  total_steps: 1000000
   batch_size: 4
-  tf_rate_upperbound: 1.0                     # teacher forcing rate during training will be linearly
-  tf_rate_lowerbound: 0.2                     # decayinn from upperbound to lower bound for each epoch
+  tf_rate_upperbound: 0.9                    # teacher forcing rate during training will be linearly
+  tf_rate_lowerbound: 0.5                    # decayinn from upperbound to lower bound for each epoch
+  tf_decay_step: 100000
   verbose_step: 1                           # Show progress every verbose_step
   valid_step: 1000
   use_pretrained: False                       # Load a pretrained model, model path should be given
