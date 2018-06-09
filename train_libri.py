@@ -9,8 +9,19 @@ import torch
 import time
 from tensorboardX import SummaryWriter
 
-# Load example config file for experiment
-config_path = 'config/las_libri_config.yaml'
+import argparse
+
+
+parser = argparse.ArgumentParser(description='Training script for LAS on Librispeech .')
+
+parser.add_argument('config_path', metavar='config_path', type=str,
+                     help='Path to config file for training.')
+
+paras = parser.parse_args()
+
+config_path = paras.config_path
+
+# Load config file for experiment
 conf = yaml.load(open(config_path,'r'))
 
 # Parameters loading
