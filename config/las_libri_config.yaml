@@ -29,5 +29,5 @@ training_parameter:
   verbose_step: 1                           # Show progress every verbose_step
   valid_step: 1000
   use_pretrained: False                       # Load a pretrained model, model path should be given
-  pretrained_listener_path: 'checkpoint/las_example.listener' 
-  pretrained_speller_path: 'checkpoint/las_example.speller' 
+  pretrained_listener_path: 'checkpoint/las_full_libri.listener' 
+  pretrained_speller_path: 'checkpoint/las_full_libri.speller' 
