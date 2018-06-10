@@ -58,7 +58,8 @@ class Listener(nn.Module):
 # Speller specified in the paper
 class Speller(nn.Module):
     def __init__(self, output_class_dim,  speller_hidden_dim, rnn_unit, speller_rnn_layer, use_gpu, max_label_len,
-                 use_mlp_in_attention, mlp_dim_in_attention, mlp_activate_in_attention, listener_hidden_dim, **kwargs):
+                 use_mlp_in_attention, mlp_dim_in_attention, mlp_activate_in_attention, listener_hidden_dim,
+                 multi_head, **kwargs):
         super(Speller, self).__init__()
         self.rnn_unit = getattr(nn,rnn_unit.upper())
         self.max_label_len = max_label_len
@@ -67,7 +68,8 @@ class Speller(nn.Module):
         self.label_dim = output_class_dim
         self.rnn_layer = self.rnn_unit(output_class_dim+speller_hidden_dim,speller_hidden_dim,num_layers=speller_rnn_layer)
         self.attention = Attention( mlp_preprocess_input=use_mlp_in_attention, preprocess_mlp_dim=mlp_dim_in_attention,
-                                    activate=mlp_activate_in_attention, input_feature_dim=2*listener_hidden_dim)
+                                    activate=mlp_activate_in_attention, input_feature_dim=2*listener_hidden_dim,
+                                    multi_head=multi_head)
         self.character_distribution = nn.Linear(speller_hidden_dim*2,output_class_dim)
         self.softmax = nn.LogSoftmax(dim=-1)
         if self.use_gpu:
@@ -133,33 +135,53 @@ class Speller(nn.Module):
 #         (i.e. weighted (by attention score) sum of all timesteps T's feature)
 class Attention(nn.Module):  
 
-    def __init__(self, mlp_preprocess_input, preprocess_mlp_dim, activate, mode='dot', input_feature_dim=512):
+    def __init__(self, mlp_preprocess_input, preprocess_mlp_dim, activate, mode='dot', input_feature_dim=512,
+                multi_head=1):
         super(Attention,self).__init__()
         self.mode = mode.lower()
         self.mlp_preprocess_input = mlp_preprocess_input
-        self.relu = nn.ReLU()
+        self.multi_head = multi_head
         self.softmax = nn.Softmax(dim=-1)
         if mlp_preprocess_input:
             self.preprocess_mlp_dim  = preprocess_mlp_dim
-            self.phi = nn.Linear(input_feature_dim,preprocess_mlp_dim)
+            self.phi = nn.Linear(input_feature_dim,preprocess_mlp_dim*multi_head)
             self.psi = nn.Linear(input_feature_dim,preprocess_mlp_dim)
-            self.activate = getattr(F,activate)
+            if self.multi_head > 1:
+                self.dim_reduce = nn.Linear(input_feature_dim*multi_head,input_feature_dim)
+            if self.activate != 'None':
+                self.activate = getattr(F,activate)
+            else:
+                self.activate = None
 
     def forward(self, decoder_state, listener_feature):
         if self.mlp_preprocess_input:
-            comp_decoder_state = self.relu(self.phi(decoder_state))
-            comp_listener_feature = self.relu(TimeDistributed(self.psi,listener_feature))
+            if self.activate:
+                comp_decoder_state = self.activate(self.phi(decoder_state))
+                comp_listener_feature = self.activate(TimeDistributed(self.psi,listener_feature))
+            else:
+                comp_decoder_state = self.phi(decoder_state)
+                comp_listener_feature = TimeDistributed(self.psi,listener_feature)
         else:
             comp_decoder_state = decoder_state
             comp_listener_feature = listener_feature
 
         if self.mode == 'dot':
-            energy = torch.bmm(comp_decoder_state,comp_listener_feature.transpose(1, 2)).squeeze(dim=1)
+            if self.multi_head == 1:
+                energy = torch.bmm(comp_decoder_state,comp_listener_feature.transpose(1, 2)).squeeze(dim=1)
+                attention_score = [self.softmax(energy)]
+                context = torch.sum(listener_feature*attention_score[0].unsqueeze(2).repeat(1,1,listener_feature.size(2)),dim=1)
+            else:
+                energy =  [ torch.bmm(att_querry,comp_listener_feature.transpose(1, 2)).squeeze(dim=1)\
+                            for att_querry in list(torch.split(comp_decoder_state, self.preprocess_mlp_dim, dim=-1))]
+                attention_score = [self.softmax(e) for e in energy]
+                projected_src = [torch.sum(listener_feature*att_s.unsqueeze(2).repeat(1,1,listener_feature.size(2)),dim=1) \
+                                for att_s in attention_score]
+                context = self.dim_reduce(torch.cat(projected_src,dim=-1))
         else:
             # TODO: other attention implementations
             pass
-        attention_score = self.softmax(energy)
-        context = torch.sum(listener_feature*attention_score.unsqueeze(2).repeat(1,1,listener_feature.size(2)),dim=1)
+        
+        
 
         return attention_score,context
 
