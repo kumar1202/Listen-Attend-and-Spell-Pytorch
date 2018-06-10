@@ -148,7 +148,7 @@ class Attention(nn.Module):
             self.psi = nn.Linear(input_feature_dim,preprocess_mlp_dim)
             if self.multi_head > 1:
                 self.dim_reduce = nn.Linear(input_feature_dim*multi_head,input_feature_dim)
-            if .ctivate != 'None':
+            if activate != 'None':
                 self.activate = getattr(F,activate)
             else:
                 self.activate = None
