@@ -3,15 +3,21 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 import pandas as pd
+from tqdm import tqdm
 
 
+def get_data(data_table,i):
+    return np.load(data_table.loc[i]['input'])
 
 def load_dataset(data_path):
-    X = []
-    Y = []
     data_table = pd.read_csv(data_path,index_col=0)
-    for i in range(len(data_table)):
-        X.append(np.load(data_table.loc[i]['input']))
+    #for i in tqdm(range(len(data_table))):
+    #    X.append(np.load(data_table.loc[i]['input']))
+
+    X = Parallel(n_jobs=-2,backend="threading")(delayed(get_data)(data_table,i) for i in tqdm(dev_file_list))
+
+    Y = []
+    for i in tqdm(range(len(data_table))):
         Y.append([int(v) for v in data_table.loc[i]['label'].split(' ')[1:]])
     return X,Y
 
@@ -43,15 +49,17 @@ def OneHotEncode(Y,max_len,max_idx=30):
 
 class LibrispeechDataset(Dataset):
     def __init__(self, data_path, batch_size, max_label_len,bucketing,drop_last=False):
+        print('Loading LibriSpeech data from',data_path,'...',flush=True)
         X,Y = load_dataset(data_path)
         if not bucketing:
             max_timestep = max([len(x) for x in X])
             self.X = ZeroPadding(X,max_timestep)
             self.Y = OneHotEncode(Y,max_label_len)
         else:
+            print('Bucketing data ...',flush=True)
             bucket_x = []
             bucket_y = []
-            for b in range(int(np.ceil(len(X)/batch_size))):
+            for b in tqdm(range(int(np.ceil(len(X)/batch_size)))):
                 left = b*batch_size
                 if (b+1)*batch_size<len(X):
                     right = (b+1)*batch_size
