@@ -15,7 +15,7 @@ def load_dataset(data_path):
     #for i in tqdm(range(len(data_table))):
     #    X.append(np.load(data_table.loc[i]['input']))
 
-    X = Parallel(n_jobs=-2,backend="threading")(delayed(get_data)(data_table,i) for i in tqdm(dev_file_list))
+    X = Parallel(n_jobs=-2,backend="threading")(delayed(get_data)(data_table,i) for i in tqdm(range(len(data_table))))
 
     Y = []
     for i in tqdm(range(len(data_table))):
