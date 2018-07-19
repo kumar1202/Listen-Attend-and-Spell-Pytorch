@@ -12,6 +12,7 @@ def load_dataset(data_path):
     data_table = pd.read_csv(data_path,index_col=0)
     for i in range(len(data_table)):
         X.append(np.load(data_table.loc[i]['input']))
+        #print(data_table.loc[i]['input'])
         Y.append([int(v) for v in data_table.loc[0]['label'].split(' ')[1:]])
     return X,Y
 
@@ -19,7 +20,8 @@ def load_dataset(data_path):
 # Return new_x : a np array of shape (len(x), padded_timestep, feature)
 def ZeroPadding(x,pad_len):
     features = x[0].shape[-1]
-    new_x = np.zeros((len(x),pad_len,features))
+    print(features,len(x),pad_len)
+    new_x = np.zeros((len(x),pad_len,features),dtype = np.uint8)
     for idx,ins in enumerate(x):
         new_x[idx,:len(ins),:] = ins
     return new_x
@@ -30,13 +32,16 @@ def ZeroPadding(x,pad_len):
 # Input y: list of np array with shape ()
 # Output tuple: (indices, values, shape)
 def OneHotEncode(Y,max_len,max_idx=30):
-    new_y = np.zeros((len(Y),max_len,max_idx))
+    new_y = np.zeros((len(Y),max_len,max_idx),dtype = np.uint8)
+    max_ls = 0
     for idx,label_seq in enumerate(Y):
         cnt = 0
         for label in label_seq:
             new_y[idx,cnt,label] = 1.0
             cnt += 1
         new_y[idx,cnt,1] = 1.0 # <eos>
+        max_ls = max(max_ls,cnt)
+    print(max_ls)
     return new_y
 
 class LibrispeechDataset(Dataset):

@@ -29,26 +29,26 @@ tf_rate_lowerbound = conf['training_parameter']['tf_rate_lowerbound']
 # X : Padding to shape [num of sample, max_timestep, feature_dim]
 # Y : Squeeze repeated label and apply one-hot encoding (preserve 0 for <sos> and 1 for <eos>)
 print("Starting")
-X_train, y_train = load_dataset(conf['train_variable']['data_path'])
-X_val, y_val = load_dataset(conf['val_variable']['data_path'])
-X_test, y_test = load_dataset(conf['test_variable']['data_path'])
-train_set = create_dataloader(X_train, y_train, **conf['model_parameter'], **conf['training_parameter'], shuffle=True)
-valid_set = create_dataloader(X_val, y_val, **conf['model_parameter'], **conf['training_parameter'], shuffle=False)
-test_set = create_dataloader(X_test, y_test, **conf['model_parameter'], **conf['training_parameter'], shuffle=False)
+#X_train, y_train = load_dataset(conf['train_variable']['data_path'])
+#X_val, y_val = load_dataset(conf['val_variable']['data_path'])
+#X_test, y_test = load_dataset(conf['test_variable']['data_path'])
+train_set = create_dataloader(data_path = "/home/paperspace/Smart_Titles/ASR_Engine/LibriSpeech/train.csv",**conf['model_parameter'], **conf['training_parameter'], shuffle=True)
+valid_set = create_dataloader(data_path = "/home/paperspace/Smart_Titles/ASR_Engine/LibriSpeech/dev.csv",**conf['model_parameter'], **conf['training_parameter'], shuffle=False)
+test_set = create_dataloader(data_path = "/home/paperspace/Smart_Titles/ASR_Engine/LibriSpeech/test.csv",**conf['model_parameter'], **conf['training_parameter'], shuffle=False)
 print("Parameters Loaded")
 # Construct LAS Model or load pretrained LAS model
 if not use_pretrained:
-    traing_log = open(conf['meta_variable']['training_log_dir']+conf['meta_variable']['experiment_name']+'.log','w')
+    traing_log = open(conf['train_variable']['training_log_dir']+conf['train_variable']['experiment_name']+'.log','w')
     listener = Listener(**conf['model_parameter'])
     speller = Speller(**conf['model_parameter'])
 else:
-    traing_log = open(conf['meta_variable']['training_log_dir']+conf['meta_variable']['experiment_name']+'.log','a')
+    traing_log = open(conf['train_variable']['training_log_dir']+conf['train_variable']['experiment_name']+'.log','a')
     listener = torch.load(conf['training_parameter']['pretrained_listener_path'])
     speller = torch.load(conf['training_parameter']['pretrained_speller_path'])
 optimizer = torch.optim.Adam([{'params':listener.parameters()}, {'params':speller.parameters()}],
                              lr=conf['training_parameter']['learning_rate'])
-listener_model_path = conf['meta_variable']['checkpoint_dir']+conf['meta_variable']['experiment_name']+'.listener'
-speller_model_path = conf['meta_variable']['checkpoint_dir']+conf['meta_variable']['experiment_name']+'.speller'
+listener_model_path = conf['train_variable']['checkpoint_dir']+conf['train_variable']['experiment_name']+'.listener'
+speller_model_path = conf['train_variable']['checkpoint_dir']+conf['train_variable']['experiment_name']+'.speller'
 
 # save checkpoint with the best ler
 best_ler = 1.0
